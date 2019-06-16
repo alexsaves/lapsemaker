@@ -2,10 +2,17 @@ import com.diogonunes.jcdp.color.ColoredPrinter;
 import com.diogonunes.jcdp.color.api.Ansi;
 import lapser.LapseProject;
 import utils.ArgsParser;
+import utils.EventEmitter;
 
 import java.text.DecimalFormat;
 
 public class main {
+
+    /**
+     * The threshold to use when grouping images that have intervals which are slightly different
+     */
+    private static final Long intervalClosenessThresholdSeconds = 2l;
+
     /**
      * Program entry point
      * @param args
@@ -17,15 +24,22 @@ public class main {
         parser.parse();
         if (parser.IsValid) {
             // Everything is good
-            LapseProject project = new LapseProject(parser.parseFolder);
+            LapseProject project = new LapseProject(parser.parseFolder, intervalClosenessThresholdSeconds);
+            project.OnLog.register(new EventEmitter.Listener<String>() {
+                @Override
+                public void onEventFired(EventEmitter emitter, String o) {
+                    logMessage(o);
+                }
+            });
             try {
                 project.parse();
             } catch (RuntimeException ex) {
-                logMessage("Parse error: " + ex.getMessage());
+                logError("Parse error: " + ex.getMessage());
             }
 
         } else {
-            terminalPrinter.println(String.format("Usage: %s ../imgs/", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
+            terminalPrinter.println(String.format("Usage: %s IMGDIR", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
+            terminalPrinter.println(String.format("Eg: %s ../imgs/", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
             return;
         }
     }
@@ -42,6 +56,16 @@ public class main {
     private static void logMessage(String msg) {
         terminalPrinter.print("[" + terminalPrinter.getDateFormatted() + "] ", Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
         terminalPrinter.println(msg, Ansi.Attribute.NONE, Ansi.FColor.CYAN, Ansi.BColor.NONE);
+        terminalPrinter.clear();
+    }
+
+    /**
+     * Log an error
+     * @param msg
+     */
+    private static void logError(String msg) {
+        terminalPrinter.print("[" + terminalPrinter.getDateFormatted() + "] ", Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
+        terminalPrinter.println(msg, Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
         terminalPrinter.clear();
     }
 }

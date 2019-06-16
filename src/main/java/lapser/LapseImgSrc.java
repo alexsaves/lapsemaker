@@ -30,4 +30,13 @@ public class LapseImgSrc implements Comparable<LapseImgSrc> {
     public int compareTo(LapseImgSrc othr) {
         return takenAt.compareTo(othr.takenAt);
     }
+
+    /**
+     * Stringify
+     * @return
+     */
+    @Override
+    public String toString() {
+        return takenAt.toString();
+    }
 }
