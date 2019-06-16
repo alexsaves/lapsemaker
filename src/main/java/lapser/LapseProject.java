@@ -32,25 +32,31 @@ public class LapseProject {
      */
     public LapseProject(String dir) {
         this.srcDir = dir;
-        Set<File> _srcFiles = Files.getImagesFromFolder(dir);
+    }
+
+    /**
+     * Parse the source folder
+     * @throws Exception
+     */
+    public void parse() throws RuntimeException {
+        Set<File> _srcFiles = Files.getImagesFromFolder(this.srcDir);
         _srcFiles.forEach(fl -> {
             LapseImgSrc src = new LapseImgSrc();
             src.file = fl;
             try {
-                src.metadata = ImageMetadataReader.readMetadata(fl.getAbsoluteFile());
+                src.metadata = ImageMetadataReader.readMetadata(src.file.getAbsoluteFile());
                 ExifSubIFDDirectory directory
                         = src.metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
                 Date date
                         = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
                 src.takenAt = date;
                 srcImgs.add(src);
-            } catch(IOException ex) {
-                return;
-            } catch(ImageProcessingException ex) {
-                return;
+            } catch (IOException ex) {
+                throw new RuntimeException("Folder missing or files inaccessible");
+            } catch (ImageProcessingException ex) {
+                throw new RuntimeException("Unable to parse image: " + ex.getMessage());
             }
         });
         Collections.sort(srcImgs);
-        System.out.println("hi");
     }
 }
