@@ -24,7 +24,7 @@ public class main {
         parser.parse();
         if (parser.IsValid) {
             // Everything is good
-            LapseProject project = new LapseProject(parser.parseFolder, parser.targetFolder, parser.ffmpegLocation, parser.fps, intervalClosenessThresholdSeconds);
+            LapseProject project = new LapseProject(parser.parseFolder, parser.targetFolder, parser.ffmpegLocation, parser.fps, parser.intermediateFrames, intervalClosenessThresholdSeconds);
             project.OnLog.register(new EventEmitter.Listener<String>() {
                 @Override
                 public void onEventFired(EventEmitter emitter, String o) {
@@ -41,12 +41,12 @@ public class main {
             }
 
             // Clean up the target folder
-            /*try {
+            try {
                 project.cleanupTargetDir();
             } catch (RuntimeException ex) {
                 logError("Cleanup error: " + ex.getMessage());
                 return;
-            }*/
+            }
 
             // Parse the folder and fix basic problems
             try {

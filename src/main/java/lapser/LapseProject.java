@@ -65,17 +65,23 @@ public class LapseProject {
     private int fps = 10;
 
     /**
+     * How many generated frames between real frames?
+     */
+    private int intermediateFrames = 0;
+
+    /**
      * Make a new project
      *
      * @param srcDir
      * @param targDir
      * @param intervalClosenessThresholdSeconds
      */
-    public LapseProject(String srcDir, String targDir, String ffmpegDir, int frameRate, Long intervalClosenessThresholdSeconds) {
+    public LapseProject(String srcDir, String targDir, String ffmpegDir, int frameRate, int intermediateFrames, Long intervalClosenessThresholdSeconds) {
         this.srcDir = srcDir;
         this.ffmpegDir = ffmpegDir;
         this.targDir = targDir;
         this.fps = frameRate;
+        this.intermediateFrames = intermediateFrames;
         this.intervalClosenessThresholdSeconds = intervalClosenessThresholdSeconds;
     }
 
@@ -276,25 +282,52 @@ public class LapseProject {
      */
     public void generateFinalImages() throws RuntimeException {
         int frameCount = 0;
-        DecimalFormat basicIntFormatter = new DecimalFormat("###,###,###,##0");
 
         logMessage("Generating final images in " + this.targDir, true);
 
         for (int i = 0; i < srcImgs.size(); i++) {
-            LapseImgSrc img1 = srcImgs.get(i);
-            BufferedImage bimg1 = img1.getImage();
-            String finalFilename = getFileNameForFrame(frameCount);
-            File outputfile = new File(this.targDir + finalFilename);
-            try {
-                ImageIO.write(bimg1, "png", outputfile);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex.getMessage());
-            }
-            img1.Dispose();
+            LapseImgSrc currentFrame = srcImgs.get(i);
+            BufferedImage bimg1 = currentFrame.getImage();
+            if (intermediateFrames > 0 && i > 0) {
+                // We should generate intermediate frames
+                LapseImgSrc lastFrame = srcImgs.get(i - 1);
+                Long interval = currentFrame.takenAt.getTime() - lastFrame.takenAt.getTime();
+                Long intInc = (interval / (intermediateFrames + 1l));
+                Long recreationTimeIndex = lastFrame.takenAt.getTime();
+                for (int f = 0; f < intermediateFrames; f++) {
+                    recreationTimeIndex += intInc;
+                    BufferedImage newImg = ImageBlender.BlendImages(lastFrame, currentFrame, recreationTimeIndex);
+                    writeFinalOutputImg(frameCount++, newImg);
+                }
+                lastFrame.Dispose();
 
-            logMessage("(" + basicIntFormatter.format(frameCount + 1) + ") Wrote " + finalFilename + ".");
-            frameCount++;
+                // Hint to do garbage collection
+                System.gc();
+            } else if (i > 0) {
+                // Free up memory
+                srcImgs.get(i - 1).Dispose();
+            }
+            writeFinalOutputImg(frameCount++, bimg1);
         }
+    }
+
+    /**
+     * Output the final image
+     * @param frameCount
+     * @param img
+     * @throws RuntimeException
+     */
+    private void writeFinalOutputImg(int frameCount, BufferedImage img) throws RuntimeException {
+        DecimalFormat basicIntFormatter = new DecimalFormat("###,###,###,##0");
+        String finalFilename = getFileNameForFrame(frameCount);
+        File outputfile = new File(this.targDir + finalFilename);
+        try {
+            ImageIO.write(img, "png", outputfile);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+
+        logMessage("(" + basicIntFormatter.format(frameCount + 1) + ") Wrote " + finalFilename + ".");
     }
 
     /**

@@ -14,14 +14,14 @@ public class ImageBlender {
      *
      * @param img1
      * @param img2
-     * @param timeIndex
+     * @param timeIndexMS
      * @return
      */
-    public static BufferedImage BlendImages(LapseImgSrc img1, LapseImgSrc img2, Long timeIndex) throws RuntimeException {
+    public static BufferedImage BlendImages(LapseImgSrc img1, LapseImgSrc img2, Long timeIndexMS) throws RuntimeException {
         ImageIO.setUseCache(false);
 
         // Compute the fraction progress
-        Long msProg = (Long) (timeIndex - img1.takenAt.getTime());
+        Long msProg = (Long) (timeIndexMS - img1.takenAt.getTime());
         Long msDuration = img2.takenAt.getTime() - img1.takenAt.getTime();
         Double timeProg = msProg.doubleValue() / msDuration.doubleValue();
 
