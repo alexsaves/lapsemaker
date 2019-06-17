@@ -4,6 +4,7 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import lapser.img.ImageBlender;
+import lapser.img.ImgType;
 import lapser.interval.LapseIntervalCalculator;
 import utils.EventEmitter;
 import utils.Files;
@@ -70,17 +71,23 @@ public class LapseProject {
     private int intermediateFrames = 0;
 
     /**
+     * Encoding type
+     */
+    private int imgType = ImgType.JPEG;
+
+    /**
      * Make a new project
      *
      * @param srcDir
      * @param targDir
      * @param intervalClosenessThresholdSeconds
      */
-    public LapseProject(String srcDir, String targDir, String ffmpegDir, int frameRate, int intermediateFrames, Long intervalClosenessThresholdSeconds) {
+    public LapseProject(String srcDir, String targDir, String ffmpegDir, int frameRate, int intermediateFrames, int imgType, Long intervalClosenessThresholdSeconds) {
         this.srcDir = srcDir;
         this.ffmpegDir = ffmpegDir;
         this.targDir = targDir;
         this.fps = frameRate;
+        this.imgType = imgType;
         this.intermediateFrames = intermediateFrames;
         this.intervalClosenessThresholdSeconds = intervalClosenessThresholdSeconds;
     }
@@ -322,7 +329,7 @@ public class LapseProject {
         String finalFilename = getFileNameForFrame(frameCount);
         File outputfile = new File(this.targDir + finalFilename);
         try {
-            ImageIO.write(img, "png", outputfile);
+            ImageIO.write(img, getImgTypeExtension().toLowerCase(), outputfile);
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage());
         }
@@ -342,7 +349,19 @@ public class LapseProject {
             finalStr += "0";
         }
         DecimalFormat filenameFormatter = new DecimalFormat(finalStr);
-        return filenameFormatter.format(frame) + ".png";
+        return filenameFormatter.format(frame) + "." + getImgTypeExtension();
+    }
+
+    /**
+     * Get the file extension
+     * @return
+     */
+    private String getImgTypeExtension() {
+        if (imgType == ImgType.PNG) {
+            return "PNG";
+        } else {
+            return "JPG";
+        }
     }
 
     /**

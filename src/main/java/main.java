@@ -24,7 +24,7 @@ public class main {
         parser.parse();
         if (parser.IsValid) {
             // Everything is good
-            LapseProject project = new LapseProject(parser.parseFolder, parser.targetFolder, parser.ffmpegLocation, parser.fps, parser.intermediateFrames, intervalClosenessThresholdSeconds);
+            LapseProject project = new LapseProject(parser.parseFolder, parser.targetFolder, parser.ffmpegLocation, parser.fps, parser.intermediateFrames, parser.imgType, intervalClosenessThresholdSeconds);
             project.OnLog.register(new EventEmitter.Listener<String>() {
                 @Override
                 public void onEventFired(EventEmitter emitter, String o) {
@@ -73,8 +73,8 @@ public class main {
             }
 
         } else {
-            terminalPrinter.println(String.format("Usage: %s [IMGDIR] [OUTDIR] [INTERMEDIATEFRAMESCOUNT] [FFMPEGLOCATION] [FPS]", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
-            terminalPrinter.println(String.format("Eg: %s ../imgs/ ../out/ 2 /usr/bin/ffmpeg 10", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
+            terminalPrinter.println(String.format("Usage: %s [IMGDIR] [OUTDIR] [INTERMEDIATEFRAMESCOUNT] [FFMPEGLOCATION] [FPS] [JPG/PNG]", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
+            terminalPrinter.println(String.format("Eg: %s ../imgs/ ../out/ 2 /usr/bin/ffmpeg 10 PNG", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
             return;
         }
     }

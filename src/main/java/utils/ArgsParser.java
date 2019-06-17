@@ -1,5 +1,7 @@
 package utils;
 
+import lapser.img.ImgType;
+
 import java.io.File;
 
 public class ArgsParser {
@@ -40,6 +42,11 @@ public class ArgsParser {
     public int fps = 10;
 
     /**
+     * The encoding type
+     */
+    public int imgType = ImgType.JPEG;
+
+    /**
      * Set up a new args
      *
      * @param args
@@ -52,7 +59,7 @@ public class ArgsParser {
      * Parse the args
      */
     public void parse() {
-        if (_args.length == 5) {
+        if (_args.length == 6) {
             File f = new File(_args[0]);
             if (f.exists() && f.isDirectory()) {
                 parseFolder = _args[0];
@@ -65,6 +72,18 @@ public class ArgsParser {
                         t = new File(ffmpegLocation);
                         if (t.exists() && t.isDirectory()) {
                             fps = Integer.parseInt(_args[4]);
+                            String imgTpeStr = _args[5].toUpperCase();
+                            switch (imgTpeStr) {
+                                case "JPG":
+                                    imgType = ImgType.JPEG;
+                                    break;
+                                case "JPEG":
+                                    imgType = ImgType.JPEG;
+                                    break;
+                                case "PNG":
+                                    imgType = ImgType.PNG;
+                                    break;
+                            }
                             IsValid = true;
                         }
                     } catch (NumberFormatException ex) {
