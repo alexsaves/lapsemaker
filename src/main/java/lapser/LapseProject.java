@@ -374,7 +374,7 @@ public class LapseProject {
         // Get the dimensions
         BufferedImage imgTmp = srcImgs.get(0).getImage();
 
-        String[] finalCommand = {"-r", this.fps + "", "-f", "image2", "-s", imgTmp.getWidth() + "x" + imgTmp.getHeight(), "-i", this.targDir + "%" + zerosInFileNames + "d.png", "-vcodec", "libx264", "-crf", "25", "-pix_fmt", "yuv420p", this.targDir + "out.mp4"};
+        String[] finalCommand = {"-r", this.fps + "", "-f", "image2", "-s", imgTmp.getWidth() + "x" + imgTmp.getHeight(), "-i", this.targDir + "%" + zerosInFileNames + "d." + getImgTypeExtension().toLowerCase(), "-vcodec", "libx264", "-crf", "25", "-pix_fmt", "yuv420p", this.targDir + "out.mp4"};
         logMessage("Running FFMpeg with \"" + String.join(" ", finalCommand) + "\"", true);
         imgTmp = null;
 

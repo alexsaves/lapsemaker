@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65d66e40-047c-458d-9e7c-20834951dbe5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/lapser/img/ImgType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/lapser/LapseProject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lapser/LapseProject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utils/ArgsParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utils/ArgsParser.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -42,8 +38,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/lapser/LapseProject.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="331" column="66" selection-start-line="331" selection-start-column="66" selection-end-line="331" selection-end-column="66" />
+            <state relative-caret-position="200">
+              <caret line="376" column="210" selection-start-line="376" selection-start-column="210" selection-end-line="376" selection-end-column="210" />
             </state>
           </provider>
         </entry>
@@ -262,7 +258,7 @@
     <property name="Repository.Attach.Annotations" value="false" />
     <property name="Repository.Attach.JavaDocs" value="false" />
     <property name="Repository.Attach.Sources" value="false" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1560737246116" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1560737689110" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -317,7 +313,7 @@
     <frame x="34" y="62" width="1336" height="788" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22565688" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22565688" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -327,7 +323,7 @@
       <window_info id="Favorites" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3275862" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3275862" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3994253" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -498,8 +494,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/lapser/LapseProject.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="331" column="66" selection-start-line="331" selection-start-column="66" selection-end-line="331" selection-end-column="66" />
+        <state relative-caret-position="200">
+          <caret line="376" column="210" selection-start-line="376" selection-start-column="210" selection-end-line="376" selection-end-column="210" />
         </state>
       </provider>
     </entry>
