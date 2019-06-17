@@ -24,22 +24,57 @@ public class main {
         parser.parse();
         if (parser.IsValid) {
             // Everything is good
-            LapseProject project = new LapseProject(parser.parseFolder, intervalClosenessThresholdSeconds);
+            LapseProject project = new LapseProject(parser.parseFolder, parser.targetFolder, parser.ffmpegLocation, parser.fps, intervalClosenessThresholdSeconds);
             project.OnLog.register(new EventEmitter.Listener<String>() {
                 @Override
                 public void onEventFired(EventEmitter emitter, String o) {
                     logMessage(o);
                 }
             });
+
+            // Confirm presence of FFMpeg
+            try {
+                project.validateFFMpegPresense();
+            } catch (RuntimeException ex) {
+                logError("Setup error: " + ex.getMessage());
+                return;
+            }
+
+            // Clean up the target folder
+            /*try {
+                project.cleanupTargetDir();
+            } catch (RuntimeException ex) {
+                logError("Cleanup error: " + ex.getMessage());
+                return;
+            }*/
+
+            // Parse the folder and fix basic problems
             try {
                 project.parse();
             } catch (RuntimeException ex) {
                 logError("Parse error: " + ex.getMessage());
+                return;
+            }
+
+            // Generate the final set of images
+            try {
+                project.generateFinalImages();
+            } catch (RuntimeException ex) {
+                logError("Generation error: " + ex.getMessage());
+                return;
+            }
+
+            // Generate final video
+            try {
+                project.generateFinalVideo();
+            } catch (RuntimeException ex) {
+                logError("Video generation error: " + ex.getMessage());
+                return;
             }
 
         } else {
-            terminalPrinter.println(String.format("Usage: %s IMGDIR", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
-            terminalPrinter.println(String.format("Eg: %s ../imgs/", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
+            terminalPrinter.println(String.format("Usage: %s [IMGDIR] [OUTDIR] [INTERMEDIATEFRAMESCOUNT] [FFMPEGLOCATION] [FPS]", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
+            terminalPrinter.println(String.format("Eg: %s ../imgs/ ../out/ 2 /usr/bin/ffmpeg 10", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
             return;
         }
     }
