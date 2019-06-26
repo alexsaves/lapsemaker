@@ -24,7 +24,7 @@ public class main {
         parser.parse();
         if (parser.IsValid) {
             // Everything is good
-            LapseProject project = new LapseProject(parser.parseFolder, parser.targetFolder, parser.ffmpegLocation, parser.fps, parser.intermediateFrames, parser.imgType, intervalClosenessThresholdSeconds);
+            LapseProject project = new LapseProject(parser.parseFolder, parser.targetFolder, parser.ffmpegLocation, parser.fps, parser.intermediateFrames, parser.imgType, intervalClosenessThresholdSeconds, parser.overlayPosition);
             project.OnLog.register(new EventEmitter.Listener<String>() {
                 @Override
                 public void onEventFired(EventEmitter emitter, String o) {
@@ -73,8 +73,17 @@ public class main {
             }
 
         } else {
-            terminalPrinter.println(String.format("Usage: %s [IMGDIR] [OUTDIR] [INTERMEDIATEFRAMESCOUNT] [FFMPEGLOCATION] [FPS] [JPG/PNG]", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
-            terminalPrinter.println(String.format("Eg: %s ../imgs/ ../out/ 2 /usr/bin/ffmpeg 10 PNG", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
+            terminalPrinter.println(String.format("Usage: %s [IMGDIR] [OUTDIR] [INTERMEDIATEFRAMESCOUNT] [FFMPEGLOCATION] [FPS] [JPG/PNG] [OVERLAYPOS]", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.RED, Ansi.BColor.NONE);
+            terminalPrinter.println(String.format("Eg: %s ../imgs/ ../out/ 2 /usr/bin/ffmpeg 10 PNG NONE", ProjectInfo.AppName), Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
+            terminalPrinter.println("\nSome tips:", Ansi.Attribute.NONE, Ansi.FColor.WHITE, Ansi.BColor.NONE);
+            terminalPrinter.println("\nOVERLAYPOS", Ansi.Attribute.NONE, Ansi.FColor.YELLOW, Ansi.BColor.NONE);
+            terminalPrinter.println(" - NONE - No overlay", Ansi.Attribute.NONE, Ansi.FColor.CYAN, Ansi.BColor.NONE);
+            terminalPrinter.println(" - BOTTOMLEFT - Position at the bottom left area", Ansi.Attribute.NONE, Ansi.FColor.CYAN, Ansi.BColor.NONE);
+            terminalPrinter.println(" - BOTTOMRIGHT - Bottom right area", Ansi.Attribute.NONE, Ansi.FColor.CYAN, Ansi.BColor.NONE);
+            terminalPrinter.println(" - TOPLEFT - Top right area", Ansi.Attribute.NONE, Ansi.FColor.CYAN, Ansi.BColor.NONE);
+            terminalPrinter.println(" - TOPRIGHT - Top right area", Ansi.Attribute.NONE, Ansi.FColor.CYAN, Ansi.BColor.NONE);
+            terminalPrinter.println(" - TOPCENTER - Centered at the top", Ansi.Attribute.NONE, Ansi.FColor.CYAN, Ansi.BColor.NONE);
+            terminalPrinter.println(" - BOTTOMCENTER - Bottom and centered", Ansi.Attribute.NONE, Ansi.FColor.CYAN, Ansi.BColor.NONE);
             return;
         }
     }

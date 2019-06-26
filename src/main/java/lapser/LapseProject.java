@@ -3,6 +3,7 @@ package lapser;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import lapser.datetimeoverlay.DateTimeOverlay;
 import lapser.img.ImageBlender;
 import lapser.img.ImgType;
 import lapser.interval.LapseIntervalCalculator;
@@ -76,14 +77,20 @@ public class LapseProject {
     private int imgType = ImgType.JPEG;
 
     /**
+     * Overlay location
+     */
+    private DateTimeOverlay.OverlayPosition overlayPosition = DateTimeOverlay.OverlayPosition.NONE;
+
+    /**
      * Make a new project
      *
      * @param srcDir
      * @param targDir
      * @param intervalClosenessThresholdSeconds
      */
-    public LapseProject(String srcDir, String targDir, String ffmpegDir, int frameRate, int intermediateFrames, int imgType, Long intervalClosenessThresholdSeconds) {
+    public LapseProject(String srcDir, String targDir, String ffmpegDir, int frameRate, int intermediateFrames, int imgType, Long intervalClosenessThresholdSeconds, DateTimeOverlay.OverlayPosition overlayPos) {
         this.srcDir = srcDir;
+        this.overlayPosition = overlayPos;
         this.ffmpegDir = ffmpegDir;
         this.targDir = targDir;
         this.fps = frameRate;
@@ -98,7 +105,7 @@ public class LapseProject {
      * @param str
      */
     private void logMessage(String str) {
-        this.logMessage(str, false);
+        this.logMessage(str, false, false);
     }
 
     /**
@@ -106,7 +113,7 @@ public class LapseProject {
      *
      * @param str
      */
-    private void logMessage(String str, boolean ellipses) {
+    private void logMessage(String str, boolean ellipses, boolean erasePreviousLine) {
         this.OnLog.fire(str + (ellipses ? "…" : ""));
     }
 
@@ -152,7 +159,7 @@ public class LapseProject {
      * @throws Exception
      */
     public void parse() throws RuntimeException {
-        logMessage("Parsing folder " + this.srcDir, true);
+        logMessage("Parsing folder " + this.srcDir, true, false);
         Set<File> _srcFiles = Files.getImagesFromFolder(this.srcDir);
 
         // Output some basic info about the image set
@@ -242,7 +249,7 @@ public class LapseProject {
         logMessage("Frame sequence: " + frameSequence.stream().reduce("", (x, y) -> x + y));
 
         if (missingFrames > 0) {
-            logMessage("Generating " + basicIntFormatter.format(missingFrames) + " missing frames", true);
+            logMessage("Generating " + basicIntFormatter.format(missingFrames) + " missing frames", true, false);
             // Now attempt to fill any missing images with blends of proximate images
             currentTime = (Date) srcImgs.get(0).takenAt.clone();
             int imagesGenerated = 0;
@@ -290,7 +297,13 @@ public class LapseProject {
     public void generateFinalImages() throws RuntimeException {
         int frameCount = 0;
 
-        logMessage("Generating final images in " + this.targDir, true);
+        logMessage("Generating final images in " + this.targDir, true, false);
+
+        // Set up the overlay
+        DateTimeOverlay overlay = new DateTimeOverlay(this.overlayPosition, srcImgs.get(0).takenAt, srcImgs.get(srcImgs.size()-1).takenAt, this.fps);
+
+        // Estimate total frames
+        int estimatedFrameCount = srcImgs.size() + ((srcImgs.size() - 1) * intermediateFrames);
 
         for (int i = 0; i < srcImgs.size(); i++) {
             LapseImgSrc currentFrame = srcImgs.get(i);
@@ -303,8 +316,9 @@ public class LapseProject {
                 Long recreationTimeIndex = lastFrame.takenAt.getTime();
                 for (int f = 0; f < intermediateFrames; f++) {
                     recreationTimeIndex += intInc;
+                    Date frameDateTime = new Date(recreationTimeIndex);
                     BufferedImage newImg = ImageBlender.BlendImages(lastFrame, currentFrame, recreationTimeIndex);
-                    writeFinalOutputImg(frameCount++, newImg);
+                    writeFinalOutputImg(frameCount++, estimatedFrameCount, newImg, overlay, frameDateTime);
                 }
                 lastFrame.Dispose();
 
@@ -314,7 +328,7 @@ public class LapseProject {
                 // Free up memory
                 srcImgs.get(i - 1).Dispose();
             }
-            writeFinalOutputImg(frameCount++, bimg1);
+            writeFinalOutputImg(frameCount++, estimatedFrameCount, bimg1, overlay, currentFrame.takenAt);
         }
     }
 
@@ -324,17 +338,17 @@ public class LapseProject {
      * @param img
      * @throws RuntimeException
      */
-    private void writeFinalOutputImg(int frameCount, BufferedImage img) throws RuntimeException {
+    private void writeFinalOutputImg(int frameCount, int estimatedFrameCount, BufferedImage img, DateTimeOverlay overlay, Date timeIndex) throws RuntimeException {
         DecimalFormat basicIntFormatter = new DecimalFormat("###,###,###,##0");
         String finalFilename = getFileNameForFrame(frameCount);
         File outputfile = new File(this.targDir + finalFilename);
         try {
-            ImageIO.write(img, getImgTypeExtension().toLowerCase(), outputfile);
+            ImageIO.write(overlay.generateOverlay(img, timeIndex), getImgTypeExtension().toLowerCase(), outputfile);
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage());
         }
 
-        logMessage("(" + basicIntFormatter.format(frameCount + 1) + ") Wrote " + finalFilename + ".");
+        logMessage("(" + basicIntFormatter.format(frameCount + 1) + "/" + basicIntFormatter.format(estimatedFrameCount) + ") Wrote " + finalFilename + ".");
     }
 
     /**
@@ -369,13 +383,13 @@ public class LapseProject {
      * @throws RuntimeException
      */
     public void generateFinalVideo() throws RuntimeException {
-        logMessage("Generating final video with FFMpeg", true);
+        logMessage("Generating final video with FFMpeg", true, false);
 
         // Get the dimensions
         BufferedImage imgTmp = srcImgs.get(0).getImage();
 
         String[] finalCommand = {"-r", this.fps + "", "-f", "image2", "-s", imgTmp.getWidth() + "x" + imgTmp.getHeight(), "-i", this.targDir + "%" + zerosInFileNames + "d." + getImgTypeExtension().toLowerCase(), "-vcodec", "libx264", "-crf", "25", "-pix_fmt", "yuv420p", this.targDir + "out.mp4"};
-        logMessage("Running FFMpeg with \"" + String.join(" ", finalCommand) + "\"", true);
+        logMessage("Running FFMpeg with \"" + String.join(" ", finalCommand) + "\"", true, false);
         imgTmp = null;
 
         // Hint to do garbage collection
